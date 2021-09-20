@@ -17,6 +17,7 @@ use PhpUnitGen\Core\Models\TestProperty;
 use PhpUnitGen\Core\Models\TestProvider;
 use PhpUnitGen\Core\Models\TestStatement;
 use PhpUnitGen\Core\Models\TestTrait;
+use StripChat\Base\Tests\BaseTestCase;
 use Tightenco\Collect\Support\Collection;
 
 /**
@@ -80,6 +81,8 @@ class Renderer implements RendererContract
     {
         return $this->addLine('<?php')
             ->addLine()
+            ->addLine('declare(strict_types=1);')
+            ->addLine()
             ->when($class->getNamespace(), function (string $namespace) {
                 $this->addLine("namespace {$namespace};")
                     ->addLine();
@@ -96,7 +99,7 @@ class Renderer implements RendererContract
                 $this->addLine();
             })
             ->optionalAccept($class->getDocumentation())
-            ->addLine("class {$class->getShortName()} extends TestCase")
+            ->addLine("class {$class->getShortName()} extends BaseTestCase")
             ->addLine('{')
             ->augmentIndent()
             ->whenNotEmpty($class->getTraits(), function (Collection $traits) {
@@ -141,8 +144,12 @@ class Renderer implements RendererContract
      */
     public function visitTestProperty(TestProperty $property): RendererContract
     {
+        $class = $property->getClass()
+            ? $property->getClass() . ' '
+            : '';
+        
         return $this->optionalAccept($property->getDocumentation())
-            ->addLine("protected \${$property->getName()};")
+            ->addLine("protected {$class}\${$property->getName()};")
             ->addLine();
     }
 

@@ -47,7 +47,7 @@ class DocumentationFactory implements DocumentationFactoryContract, ConfigAware
             $documentation->addLine();
         }
 
-        return $documentation->addLine('@covers \\'.$class->getReflectionClass()->getName());
+        return $documentation->addLine('@coversDefaultClass \\'.$class->getReflectionClass()->getName());
     }
 
     /**

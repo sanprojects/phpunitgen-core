@@ -53,13 +53,18 @@ class TestMethod implements Renderable
      * @param string $name
      * @param string $visibility
      */
-    public function __construct(string $name, string $visibility = 'public')
+    public function __construct(string $name, string $visibility = 'public', $reflectionMethod = '')
     {
         $this->name = $name;
         $this->visibility = $visibility;
 
         $this->parameters = new Collection();
         $this->statements = new Collection();
+
+
+
+        $documentation = new TestDocumentation("@covers ::{$reflectionMethod}");
+        $this->setDocumentation($documentation);
     }
 
     /**

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace PhpUnitGen\Core\Generators\Factories;
 
-use PHPStan\BetterReflection\Reflection\ReflectionMethod;
-use PHPStan\BetterReflection\Reflection\ReflectionParameter;
 use PhpUnitGen\Core\Aware\DocumentationFactoryAwareTrait;
 use PhpUnitGen\Core\Aware\ImportFactoryAwareTrait;
 use PhpUnitGen\Core\Aware\StatementFactoryAwareTrait;
@@ -21,6 +19,9 @@ use PhpUnitGen\Core\Models\TestClass;
 use PhpUnitGen\Core\Models\TestMethod;
 use PhpUnitGen\Core\Models\TestProperty;
 use PhpUnitGen\Core\Models\TestStatement;
+use Roave\BetterReflection\Reflection\ReflectionMethod;
+use Roave\BetterReflection\Reflection\ReflectionParameter;
+use StripChat\Users\Models\Post;
 use Tightenco\Collect\Support\Collection;
 
 /**
@@ -102,14 +103,43 @@ class MethodFactory implements
     /**
      * {@inheritdoc}
      */
-    public function makeIncomplete(ReflectionMethod $reflectionMethod): TestMethod
+    public function makeIncomplete(ReflectionMethod $reflectionMethod, TestClass $testClass): TestMethod
     {
         $method = new TestMethod(
-            $this->makeTestMethodName($reflectionMethod)
+            $this->makeTestMethodName($reflectionMethod),
+            'public',
+            $reflectionMethod->getShortName()
         );
 
-        $method->addStatement($this->statementFactory->makeTodo('This test is incomplete.'));
-        $method->addStatement(new TestStatement('$this->markTestIncomplete()'));
+        //$method->addStatement($this->statementFactory->makeTodo('This test is incomplete.'));
+        //$method->addStatement(new TestStatement('$this->markTestIncomplete()'));
+
+
+        $aguments = [];
+
+
+        foreach ($reflectionMethod->getParameters() as $parameter) {
+            $argumentName = '$' . $parameter->getName();
+            $aguments[] = $argumentName;
+            if ($parameter->getClassName()) {
+                $typeParts = explode('\\', (string) $parameter->getType());
+                $type = end($typeParts);
+                $statements = "{$argumentName} = Mockery::mock(\\{$parameter->getType()}::class)";
+            } else {
+                $statements = "{$argumentName} = ''";
+            }
+            print("{$statements} \n");
+            $method->addStatement(new TestStatement($statements));
+        }
+
+        $testedClasssName = lcfirst($testClass->getReflectionClass()->getShortName());
+        $agumentsList = implode(', ', $aguments);
+        $method->addStatement(new TestStatement(
+            "\$this->{$testedClasssName}->{$reflectionMethod->getShortName()}({$agumentsList})"
+        ));
+
+
+
 
         return $method;
     }
@@ -119,7 +149,7 @@ class MethodFactory implements
      */
     public function makeTestable(TestClass $class, ReflectionMethod $reflectionMethod): void
     {
-        $class->addMethod($this->makeIncomplete($reflectionMethod));
+        $class->addMethod($this->makeIncomplete($reflectionMethod, $class));
     }
 
     /**

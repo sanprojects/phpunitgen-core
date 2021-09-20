@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace PhpUnitGen\Core\Generators\Tests;
 
-use PHPStan\BetterReflection\Reflection\ReflectionClass;
-use PHPStan\BetterReflection\Reflection\ReflectionMethod;
-use PHPStan\BetterReflection\Reflection\ReflectionParameter;
 use PhpUnitGen\Core\Aware\ClassFactoryAwareTrait;
 use PhpUnitGen\Core\Aware\ConfigAwareTrait;
 use PhpUnitGen\Core\Aware\ImportFactoryAwareTrait;
@@ -38,6 +35,9 @@ use PhpUnitGen\Core\Generators\Factories\ValueFactory;
 use PhpUnitGen\Core\Helpers\Reflect;
 use PhpUnitGen\Core\Helpers\Str;
 use PhpUnitGen\Core\Models\TestClass;
+use Roave\BetterReflection\Reflection\ReflectionClass;
+use Roave\BetterReflection\Reflection\ReflectionMethod;
+use Roave\BetterReflection\Reflection\ReflectionParameter;
 
 /**
  * Class AbstractTestGenerator.
@@ -235,7 +235,7 @@ abstract class AbstractTestGenerator implements
     protected function addFixtures(TestClass $class): void
     {
         $class->addMethod($this->methodFactory->makeSetUp($class));
-        $class->addMethod($this->methodFactory->makeTearDown($class));
+        //$class->addMethod($this->methodFactory->makeTearDown($class));
     }
 
     /**
@@ -292,7 +292,7 @@ abstract class AbstractTestGenerator implements
     protected function handleForNotTestable(TestClass $class, ReflectionMethod $reflectionMethod): void
     {
         $class->addMethod(
-            $this->methodFactory->makeIncomplete($reflectionMethod)
+            $this->methodFactory->makeIncomplete($reflectionMethod, $class)
         );
     }
 }

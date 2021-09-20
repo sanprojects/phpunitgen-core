@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace PhpUnitGen\Core\Contracts\Generators\Factories;
 
-use PHPStan\BetterReflection\Reflection\ReflectionMethod;
 use PhpUnitGen\Core\Exceptions\InvalidArgumentException;
 use PhpUnitGen\Core\Models\TestClass;
 use PhpUnitGen\Core\Models\TestMethod;
+use Roave\BetterReflection\Reflection\ReflectionMethod;
 
 /**
  * Interface MethodFactory.
@@ -55,7 +55,7 @@ interface MethodFactory
      *
      * @return TestMethod
      */
-    public function makeIncomplete(ReflectionMethod $reflectionMethod): TestMethod;
+    public function makeIncomplete(ReflectionMethod $reflectionMethod, TestClass $testClass): TestMethod;
 
     /**
      * Create method(s) for testable reflection method and it (or them) to the test class.

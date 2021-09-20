@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace PhpUnitGen\Core\Generators\Factories;
 
-use PHPStan\BetterReflection\Reflection\ReflectionParameter;
 use PhpUnitGen\Core\Aware\DocumentationFactoryAwareTrait;
 use PhpUnitGen\Core\Aware\ImportFactoryAwareTrait;
 use PhpUnitGen\Core\Aware\MockGeneratorAwareTrait;
@@ -17,6 +16,7 @@ use PhpUnitGen\Core\Helpers\Reflect;
 use PhpUnitGen\Core\Models\TestClass;
 use PhpUnitGen\Core\Models\TestImport;
 use PhpUnitGen\Core\Models\TestProperty;
+use Roave\BetterReflection\Reflection\ReflectionParameter;
 use Tightenco\Collect\Support\Collection;
 
 /**
@@ -44,13 +44,16 @@ class PropertyFactory implements
     {
         $reflectionClass = $class->getReflectionClass();
 
-        $property = new TestProperty($this->getPropertyName($reflectionClass));
-
-        $import = $this->importFactory->make($class, $reflectionClass->getName());
-
-        $property->setDocumentation(
-            $this->documentationFactory->makeForProperty($property, $import)
+        $property = new TestProperty(
+            $this->getPropertyName($reflectionClass),
+            $reflectionClass->getShortName()
         );
+
+//        $import = $this->importFactory->make($class, $reflectionClass->getName());
+//
+//        $property->setDocumentation(
+//            $this->documentationFactory->makeForProperty($property, $import)
+//        );
 
         return $property;
     }
@@ -82,16 +85,17 @@ class PropertyFactory implements
         bool $isBuiltIn = false,
         bool $isMock = true
     ): TestProperty {
-        $property = new TestProperty($name);
-
         $typeHint = $this->makeDocTypeFromString($class, $type, $isBuiltIn);
-        if ($isMock && $typeHint instanceof TestImport) {
-            $typeHint = new Collection([$typeHint, $this->mockGenerator->getMockType($class)]);
-        }
 
-        $property->setDocumentation(
-            $this->documentationFactory->makeForProperty($property, $typeHint)
-        );
+        $property = new TestProperty($name, $typeHint->getFinalName());
+
+//        if ($isMock && $typeHint instanceof TestImport) {
+//            $typeHint = new Collection([$typeHint, $this->mockGenerator->getMockType($class)]);
+//        }
+//
+//        $property->setDocumentation(
+//            $this->documentationFactory->makeForProperty($property, $typeHint)
+//        );
 
         return $property;
     }
