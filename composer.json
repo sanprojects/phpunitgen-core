@@ -1,5 +1,5 @@
 {
-  "name": "phpunitgen/core",
+  "name": "sanprojects/phpunitgen-core",
   "description": "The PhpUnitGen core features for tests generation.",
   "license": "MIT",
   "type": "library",
